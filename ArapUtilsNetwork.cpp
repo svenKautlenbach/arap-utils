@@ -122,7 +122,7 @@ namespace arap
 
 		void UdpSender::sendData(const std::vector<uint8_t>& packet)
 		{
-			//std::cout << "Sending packet of length " << packet.size() << " to " << m_ip << std::endl;
+			std::cout << "Sending packet of length " << packet.size() << " to " << m_ip << " on " << m_port << std::endl;
 
 			auto bytesSent = sendto(m_socketDescriptor, packet.data(), packet.size(), 0, 
 				reinterpret_cast<struct sockaddr*>(&m_ip6SockAddr), sizeof(m_ip6SockAddr));
@@ -374,6 +374,23 @@ namespace arap
 			}
 
 			return eui64Bytes;
+		}
+
+		std::vector<uint8_t> Ipv6MacConvert::getInterfaceAddress(const std::string& ipv6)
+		{
+			uint8_t ipv6Bytes[16];
+			if (inet_pton(AF_INET6, ipv6.c_str(), ipv6Bytes) != 1)
+			{
+				throw std::runtime_error("inet_pton() to address " + ipv6 + " failed.");
+			}
+
+			std::vector<uint8_t> interfaceBytes;
+			for (uint32_t i = 8; i < 16; i++)
+			{
+				interfaceBytes.push_back(ipv6Bytes[i]);
+			}
+
+			return interfaceBytes;
 		}
 	}
 }
