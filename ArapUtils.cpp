@@ -14,6 +14,7 @@
 #include <poll.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <termios.h>
 
 namespace arap
 {
@@ -175,6 +176,89 @@ namespace arap
 		{
 			close(m_fileDescriptor);
 		}
+
+		SerialPort::SerialPort(const std::string& portName, int baud, int parity, bool doesBlock)
+		{
+			m_fileDescriptor = open(portName.c_str(), O_RDWR | O_NOCTTY | O_SYNC);
+			if (m_fileDescriptor < 0)
+			{
+				diagnostics::Print::errnoDescription(); 
+				
+				throw std::runtime_error("Error opening COM port.");
+			}
+			
+			if (initialize(baud, parity, doesBlock) == false)
+			{
+				throw std::runtime_error("Setting COM port parameters failed.");
+			}
+		}
+			
+		bool SerialPort::initialize(int baud, int parity, bool doesBlock)
+		{
+			struct termios tty;
+			memset(&tty, 0, sizeof tty);
+			if (tcgetattr(m_fileDescriptor, &tty) != 0)
+			{
+				diagnostics::Print::errnoDescription("Error getting COM port parameters.");
+
+				return false;
+			}
+
+			cfsetospeed(&tty, baud);
+			cfsetispeed(&tty, baud);
+
+			tty.c_cflag = (tty.c_cflag & ~CSIZE) | CS8;     // 8-bit chars
+			// disable IGNBRK for mismatched speed tests; otherwise receive break
+			// as \000 chars
+			tty.c_iflag &= ~IGNBRK;		// disable break processing
+			tty.c_lflag = 0;		// no signaling chars, no echo,
+			// no canonical processing
+			tty.c_oflag = 0;		// no remapping, no delays
+			tty.c_cc[VMIN]  = 0;		// read doesn't block
+			tty.c_cc[VTIME] = 5;		// 0.5 seconds read timeout
+
+			tty.c_iflag &= ~(IXON | IXOFF | IXANY); // shut off xon/xoff ctrl
+
+			tty.c_cflag |= (CLOCAL | CREAD); // Ignore modem controls, enable reading.
+			tty.c_cflag &= ~(PARENB | PARODD); // Shut off parity.
+			tty.c_cflag |= parity;
+			tty.c_cflag &= ~CSTOPB;
+			tty.c_cflag &= ~CRTSCTS;
+
+			if (tcsetattr(m_fileDescriptor, TCSANOW, &tty) != 0)
+			{
+				diagnostics::Print::errnoDescription("Error setting COM port data options.");
+
+				return false;
+			}
+
+			return true;
+
+			memset(&tty, 0, sizeof tty);
+			if (tcgetattr(m_fileDescriptor, &tty) != 0)
+			{
+				diagnostics::Print::errnoDescription("Error getting COM port settings.");
+
+				return false;
+			}
+
+			tty.c_cc[VMIN]  = doesBlock ? 1 : 0;
+			tty.c_cc[VTIME] = 5;	// 0.5 seconds read timeout.
+
+			if (tcsetattr(m_fileDescriptor, TCSANOW, &tty) != 0)
+			{
+				diagnostics::Print::errnoDescription("Error setting COM port block option.");
+
+				return false;
+			}
+
+			return true;
+		}
+
+		SerialPort::~SerialPort()
+		{
+			close(m_fileDescriptor);
+		}
 	}
 
 	namespace strings
@@ -304,6 +388,12 @@ namespace arap
 		void Print::errnoDescription()
 		{
 			std::cerr << "Errno (" << errno << ") - " << strerror(errno) << std::endl;
+		}
+			
+		void Print::errnoDescription(const std::string& applicationMessage)
+		{
+			std::cerr << applicationMessage << std::endl;
+			errnoDescription();
 		}
 	}
 }

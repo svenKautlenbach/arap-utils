@@ -55,6 +55,20 @@ namespace arap
 			void openForWriting();
 			void closeChannel();
 		};
+
+		class SerialPort
+		{
+		public:
+			SerialPort(const std::string& portName, int baud, int parity, bool doesBlock = false);
+
+			
+
+			~SerialPort();
+		private:
+			bool initialize(int baud, int parity, bool doesBlock);
+
+			int m_fileDescriptor;
+		};
 	}
 
 	namespace strings
@@ -91,6 +105,7 @@ namespace arap
 		{
 		public:
 			static void errnoDescription();
+			static void errnoDescription(const std::string& applicationMessage);
 		private:
 			Print(){}
 			~Print(){}
