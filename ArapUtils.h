@@ -61,11 +61,15 @@ namespace arap
 		public:
 			SerialPort(const std::string& portName, int baud, int parity, bool doesBlock = false);
 
-			
+			void sendData(const std::vector<uint8_t>& data);
+			void sendMessage(const std::string& message);
 
 			~SerialPort();
 		private:
+			void writeData(const uint8_t* data, size_t length);
 			bool initialize(int baud, int parity, bool doesBlock);
+			
+			static int getTermiosSpeed(int baud);
 
 			int m_fileDescriptor;
 		};
@@ -81,6 +85,7 @@ namespace arap
 			static std::vector<std::string> getLines(const std::string& filePath);		
 			
 			static std::vector<std::string> split(const std::string& source, const std::string& delimiter);
+			static std::string removeWhiteSpace(std::string& source);
 		private:
 			Utilities(){}
 			~Utilities(){}

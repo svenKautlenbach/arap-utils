@@ -1,8 +1,10 @@
 #include "ArapUtils.h"
 
+#include <algorithm>
 #include <cstring>
 #include <ctime>
 #include <exception>
+#include <functional>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
@@ -10,16 +12,16 @@
 #include <climits>
 #include <cstdlib>
 
-#include <fcntl.h>
-#include <poll.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <termios.h>
-
 namespace arap
 {
 	namespace linuxOS
 	{
+	#include <fcntl.h>
+	#include <poll.h>
+	#include <sys/stat.h>
+	#include <sys/types.h>
+	#include <termios.h>
+	
 		pid_t Utilities::getPid(const std::string& processEntry)
 		{
 			std::string command = "ps | grep \"" + processEntry + "\" | grep -v grep";
@@ -187,12 +189,33 @@ namespace arap
 				throw std::runtime_error("Error opening COM port.");
 			}
 			
-			if (initialize(baud, parity, doesBlock) == false)
+			if (initialize(getTermiosSpeed(baud), parity, doesBlock) == false)
 			{
 				throw std::runtime_error("Setting COM port parameters failed.");
 			}
 		}
 			
+		void SerialPort::sendData(const std::vector<uint8_t>& data)
+		{
+			writeData(data.data(), data.size());
+		}
+		
+		void SerialPort::sendMessage(const std::string& message)
+		{
+			writeData(reinterpret_cast<const uint8_t*>(message.c_str()), message.length());
+		}
+			
+		void SerialPort::writeData(const uint8_t* data, size_t length)
+		{
+			auto writtenData = write(m_fileDescriptor, data, length);
+
+			if (writtenData != static_cast<ssize_t>(length))
+			{
+				diagnostics::Print::errnoDescription();
+				throw std::runtime_error("Could not write all data to serial port.");
+			}
+		}
+		
 		bool SerialPort::initialize(int baud, int parity, bool doesBlock)
 		{
 			struct termios tty;
@@ -253,6 +276,26 @@ namespace arap
 			}
 
 			return true;
+		}
+			
+		int SerialPort::getTermiosSpeed(int baud)
+		{
+			switch (baud)
+			{
+			case 0:
+				return B0;
+			case 50:
+				return B50;
+			case 75:
+				return B75;
+			case 110:
+				return B110;
+			case 9600:
+				return B9600;
+			default:
+				std::cerr << "Unsupported baud rate - " << baud << "." << std::endl;
+				throw std::runtime_error("Baud rate not supported.");
+			};
 		}
 
 		SerialPort::~SerialPort()
@@ -318,6 +361,14 @@ namespace arap
 			}
 
 			return elements;
+		}
+
+		std::string Utilities::removeWhiteSpace(std::string& source)
+		{
+			source.erase(std::remove_if(source.begin(), source.end(),
+					std::bind(std::isspace<char>, std::placeholders::_1, std::locale::classic())), source.end());
+
+			return source;
 		}
 	}
 	
