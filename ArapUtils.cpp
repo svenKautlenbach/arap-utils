@@ -47,7 +47,7 @@ namespace arap
 			return static_cast<pid_t>(convertedValue);
 		}
 
-		AppMessenger::AppMessenger(const std::string& fifoName) : m_fifoName(fifoName)
+		NamedPipe::NamedPipe(const std::string& fifoName) : m_fifoName(fifoName)
 		{
 			if (mkfifo(m_fifoName.c_str(), 0666) != 0)
 			{
@@ -60,7 +60,7 @@ namespace arap
 			}
 		}
 
-		bool AppMessenger::messagesAvailable()
+		bool NamedPipe::dataAvailable()
 		{
 			openForReading();
 
@@ -91,7 +91,7 @@ namespace arap
 			return true;
 		}
 
-		std::string AppMessenger::getLastMessage()
+		std::string NamedPipe::getLastMessage()
 		{
 			openForReading();
 			
@@ -99,7 +99,7 @@ namespace arap
 			std::string message;
 			while (true)
 			{
-				auto readResult = read(m_fileDescriptor, dataBuffer,1024);
+				auto readResult = read(m_fileDescriptor, dataBuffer, 1024);
 				if (readResult < 0)
 				{
 					if (errno == EAGAIN || errno == EINTR)
@@ -127,7 +127,7 @@ namespace arap
 			return message;
 		}
 
-		void AppMessenger::sendMessage(const std::string& message)
+		void NamedPipe::sendMessage(const std::string& message)
 		{
 			openForWriting();
 
@@ -143,12 +143,12 @@ namespace arap
 			closeChannel();
 		}
 
-		AppMessenger::~AppMessenger()
+		NamedPipe::~NamedPipe()
 		{
 			unlink(m_fifoName.c_str());
 		}
 
-		void AppMessenger::openForReading()
+		void NamedPipe::openForReading()
 		{
 			auto result = open(m_fifoName.c_str(), O_RDONLY | O_NONBLOCK);
 			if (result == -1)
@@ -161,7 +161,7 @@ namespace arap
 			m_fileDescriptor = result;
 		}
 
-		void AppMessenger::openForWriting()
+		void NamedPipe::openForWriting()
 		{
 			auto result = open(m_fifoName.c_str(), O_WRONLY);
 			if (result == -1)
@@ -174,7 +174,7 @@ namespace arap
 			m_fileDescriptor = result;
 		}
 
-		void AppMessenger::closeChannel()
+		void NamedPipe::closeChannel()
 		{
 			close(m_fileDescriptor);
 		}

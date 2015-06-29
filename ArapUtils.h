@@ -36,17 +36,18 @@ namespace arap
 			~Utilities(){}
 		};
 
-		class AppMessenger
+		class NamedPipe
 		{
 		public:
-			AppMessenger(const std::string& fifoName);
+			NamedPipe(const std::string& fifoName);
 
-			bool messagesAvailable();
+			bool dataAvailable();
 			std::string getLastMessage();
+			std::vector<uint8_t> getLastInput();
 
 			void sendMessage(const std::string& message);
 
-			~AppMessenger();
+			~NamedPipe();
 		private:
 			int m_fileDescriptor;
 			std::string m_fifoName;
