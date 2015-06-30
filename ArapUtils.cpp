@@ -60,6 +60,7 @@ namespace arap
 			}
 		}
 
+		// TODO - does NOT work properly.
 		bool NamedPipe::dataAvailable()
 		{
 			openForReading();
