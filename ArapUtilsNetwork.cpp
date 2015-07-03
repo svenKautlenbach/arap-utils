@@ -122,7 +122,7 @@ namespace arap
 
 		void UdpSender::sendData(const std::vector<uint8_t>& packet)
 		{
-			std::cout << "Sending packet of length " << packet.size() << " to " << m_ip << " on " << m_port << std::endl;
+			//std::cout << "Sending packet of length " << packet.size() << " to " << m_ip << " on " << m_port << std::endl;
 
 			auto bytesSent = sendto(m_socketDescriptor, packet.data(), packet.size(), 0, 
 				reinterpret_cast<struct sockaddr*>(&m_ip6SockAddr), sizeof(m_ip6SockAddr));
@@ -273,12 +273,11 @@ namespace arap
 			}
 			
 		}
-		
-		
+			
 		std::string Ipv6MacConvert::getIpv6(const std::string& prefix, const std::string& eui64)
 		{
 			if (prefix.size() != 4)
-				throw std::runtime_error("Prefix not the right size - currently 4 character prefixes are supported only.");
+				throw std::runtime_error("Prefix not the right size - currently 4 character prefixes are supported only. Got - " + prefix);
 
 			uint32_t prefixInt = stoul(prefix, nullptr, 16);
 			if (prefixInt == 0)
