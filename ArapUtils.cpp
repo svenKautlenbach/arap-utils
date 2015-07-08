@@ -349,6 +349,20 @@ namespace arap
 
 			return lines;
 		}
+			
+		void Utilities::writeToFile(const std::string& path, const std::string& data, bool overwrite)
+		{
+			auto options = std::ios_base::out;
+
+			if (!overwrite)
+				options |= std::ios_base::app;
+
+			std::ofstream outputFile(path, options);
+			if (outputFile.is_open() == false || outputFile.good() == false)
+				throw std::runtime_error("Opening " + path + " was not successful.");
+
+			outputFile << data;
+		}
 		
 		std::vector<std::string> Utilities::split(const std::string& source, const std::string& delimiter)
 		{
@@ -395,6 +409,31 @@ namespace arap
 
 		return time24h;
 	}
+		 
+	uint32_t Tools::getTime24h(const std::string& clockFormat)
+	{
+		auto digits = strings::Utilities::split(clockFormat, ":");
+
+		if (digits.size() != 3)
+			throw std::runtime_error(clockFormat + " has wrong format for converting to seconds. Expected hh:mm:ss");
+
+		auto hoursDigits = digits.at(0);
+		auto hours = std::stoul(hoursDigits);
+		if ((hours == 0 && hoursDigits != "00") || hours > 23)
+			throw std::runtime_error(clockFormat + " has wrong format for hour digits.");
+
+		auto minutesDigits = digits.at(1);
+		auto minutes = std::stoul(minutesDigits);
+		if ((minutes == 0 && minutesDigits != "00") || minutes > 59)
+			throw std::runtime_error(clockFormat + " has wrong format for minute digits.");
+
+		auto secondsDigits = digits.at(2);
+		auto seconds = std::stoul(secondsDigits);
+		if ((seconds == 0 && secondsDigits != "00") || seconds > 59)
+			throw std::runtime_error(clockFormat + " has wrong format for second digits.");
+
+		return hours * universe::seconds::per1Hour + minutes * universe::seconds::per1Minute + seconds;
+	}
 
 	std::string Tools::get24hFormated(uint32_t time24h)
 	{
@@ -433,6 +472,17 @@ namespace arap
 			converter << seconds << " seconds ";
 
 		return converter.str();
+	}
+
+	int Tools::generateRandom(uint32_t maxValue)
+	{
+		srand(time(nullptr));
+		auto random = rand();
+	
+		if (maxValue == 0)
+			return random;
+
+		return random % maxValue;
 	}
 
 	namespace diagnostics

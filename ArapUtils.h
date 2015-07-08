@@ -83,7 +83,9 @@ namespace arap
 		public:
 			static std::vector<std::string> getLines(FILE* fileHandle);		
 			static std::vector<std::string> getLines(std::ifstream& fileStream);		
-			static std::vector<std::string> getLines(const std::string& filePath);		
+			static std::vector<std::string> getLines(const std::string& filePath);
+
+			static void writeToFile(const std::string& path, const std::string& data, bool overwrite = true);
 			
 			static std::vector<std::string> split(const std::string& source, const std::string& delimiter);
 			static std::string removeWhiteSpace(std::string& source);
@@ -98,8 +100,11 @@ namespace arap
 	public:
 		 static uint32_t getTime24h();
 		 static uint32_t getTime24h(time_t unixTime);
+		 static uint32_t getTime24h(const std::string& clockFormat);
 		 static std::string get24hFormated(uint32_t time24h);
 		 static std::string getTimespanAscii(uint32_t uptime);
+
+		 static int generateRandom(uint32_t maxValue = 0);
 	private:
 		Tools(){}
 		~Tools(){}
