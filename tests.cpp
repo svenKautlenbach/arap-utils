@@ -1,3 +1,4 @@
+#include <cassert>
 #include <exception>
 #include <iostream>
 #include <stdexcept>
@@ -5,6 +6,7 @@
 #include <vector>
 
 #include "ArapUtils.h"
+#include "ArapTimers.h"
 
 namespace
 {
@@ -31,6 +33,12 @@ int main (int argc, char* argv[])
 		auto eui64 = arap::network::Ipv6MacConvert::getEui64("aaaa::1");
 		std::cout << "SUCCESS" << std::endl;
 		
+		std::cout << "Testing SimpleTimer." << std::endl;
+		arap::SimpleTimer timerTest(2);
+		auto timeout = timerTest.nextTimeout();
+		assert(timeout >= 1 && timeout < 3);
+		sleep(2);
+		assert(timerTest.expired());
 	}
 	catch (const std::runtime_error& e)
 	{
