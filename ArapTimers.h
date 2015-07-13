@@ -2,7 +2,6 @@
 
 #include <cassert>
 #include <ctime>
-#include <iostream>
 #include <vector>
 
 namespace arap
