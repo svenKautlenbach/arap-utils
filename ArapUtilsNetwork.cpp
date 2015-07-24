@@ -129,10 +129,8 @@ namespace arap
 
 			if (bytesSent < 0)
 			{
-				std::cerr << "sendto() failed for address " << m_ip << std::endl;
 				arap::diagnostics::Print::errnoDescription();
-
-				throw std::exception();
+				throw std::runtime_error("sendto() failed for address " + m_ip);
 			}
 
 			if (static_cast<size_t>(bytesSent) != packet.size())
