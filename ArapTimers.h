@@ -90,8 +90,8 @@ namespace arap
 			return m_timeoutDuration - elapsed();
 		}
 
-		SimpleTimer(const SimpleTimer& other) = default;
-		SimpleTimer(SimpleTimer&& other) = default;
+		//SimpleTimer(const SimpleTimer& other) { return other; }
+		//SimpleTimer(SimpleTimer&& other) = default;
 
 		~SimpleTimer(){}
 	private:
