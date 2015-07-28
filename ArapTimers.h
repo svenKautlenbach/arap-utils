@@ -39,10 +39,18 @@ namespace arap
 		void set(uint32_t seconds) override
 		{
 			m_timeoutDuration = seconds;
-			reset();
+			restart();
 		}
 
 		void reset() override
+		{
+			if (m_timeoutDuration > 0)
+				m_timeoutEpoch += m_timeoutDuration;
+
+			m_pauseContinuum = 0;
+		}
+
+		void restart()
 		{
 			if (m_timeoutDuration > 0)
 				m_timeoutEpoch = std::time(nullptr) + m_timeoutDuration;
@@ -56,7 +64,7 @@ namespace arap
 		{
 			if (m_pauseContinuum == 0)
 			{
-				reset();
+				restart();
 				return;
 			}
 		
@@ -90,6 +98,7 @@ namespace arap
 			return m_timeoutDuration - elapsed();
 		}
 
+		// Default keyword does not work like I think it is supposed to, currently disabled.
 		//SimpleTimer(const SimpleTimer& other) { return other; }
 		//SimpleTimer(SimpleTimer&& other) = default;
 
