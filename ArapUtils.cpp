@@ -387,15 +387,24 @@ namespace arap
 		}
 	}
 	
-	uint32_t Tools::getTime24h()
+	uint32_t Tools::getTime24h(bool gmt)
 	{
 		time_t rawTime;
+		time_t timeToConvert;
 
-		auto result = std::time(&rawTime);
-		if (result != rawTime)
+		timeToConvert = std::time(&rawTime);
+		if (timeToConvert != rawTime)
+		{
 			throw std::runtime_error("WTF - wrong time_t reported from time().");
+		}
 
-		return getTime24h(rawTime);
+		if (!gmt)
+		{
+			struct tm* timeInfo = localtime(&rawTime);
+			timeToConvert = mktime(timeInfo);	
+		}
+
+		return getTime24h(timeToConvert);
 	}
 
 	uint32_t Tools::getTime24h(time_t unixTime)

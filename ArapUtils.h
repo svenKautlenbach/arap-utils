@@ -98,7 +98,7 @@ namespace arap
 	class Tools
 	{
 	public:
-		 static uint32_t getTime24h();
+		 static uint32_t getTime24h(bool gmt = true);
 		 static uint32_t getTime24h(time_t unixTime);
 		 static uint32_t getTime24h(const std::string& clockFormat);
 		 static std::string get24hFormated(uint32_t time24h);
