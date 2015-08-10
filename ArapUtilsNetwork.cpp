@@ -1,5 +1,6 @@
 #include "ArapUtils.h"
 
+#include <cassert>
 #include <cstdio>
 #include <cstring>
 #include <exception>
@@ -388,6 +389,33 @@ namespace arap
 			}
 
 			return interfaceBytes;
+		}
+			
+		std::string Ipv6MacConvert::interfaceToIpv6(const std::string& prefix, std::vector<uint8_t> interface)
+		{
+			assert(interface.size() == 8);
+
+			if (prefix.size() != 4)
+				throw std::runtime_error("Prefix not the right size - currently 4 character prefixes are supported only. Got - " + prefix);
+			
+			uint32_t prefixInt = stoul(prefix, nullptr, 16);
+			if (prefixInt == 0)
+				throw std::runtime_error("Prefix(" + prefix + ") could not be converted to correct prefix bytes.");
+			
+			uint8_t ipBuffer[16] = {};
+			uint8_t prefix1 = ((prefixInt & 0xFF00) >> 8);
+			uint8_t prefix2 = prefixInt & 0xFF; 
+			memcpy(ipBuffer, &prefix1, 1);
+			memcpy(ipBuffer + 1, &prefix2, 1);
+			memcpy(ipBuffer + 8, interface.data(), 8);
+			
+			char ipString[100];
+			auto ntopResult = inet_ntop(AF_INET6, ipBuffer, ipString, 100);
+
+			if (ntopResult != ipString)
+				throw std::runtime_error("Error inet_ntop().");
+
+			return std::string(ipString);
 		}
 	}
 }

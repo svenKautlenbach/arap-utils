@@ -182,6 +182,7 @@ namespace arap
 			static std::string getIpv6(const std::string& prefix, const std::string& eui64);
 			static std::string getEui64(const std::string& ipv6);
 			static std::vector<uint8_t> getInterfaceAddress(const std::string& ipv6);
+			static std::string interfaceToIpv6(const std::string& prefix, std::vector<uint8_t> interface);
 
 		private:
 			Ipv6MacConvert(){}
