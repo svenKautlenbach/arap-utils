@@ -78,6 +78,9 @@ namespace arap
 		{
 			if (m_pauseContinuum > 0)
 				return false;
+
+			if (m_timeoutEpoch == 0)
+				return false;
 			
 			return m_timeoutEpoch <= std::time(nullptr);
 		}
