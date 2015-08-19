@@ -161,6 +161,10 @@ namespace arap
 			m_ip6SockAddr.sin6_family = AF_INET6;
 			m_ip6SockAddr.sin6_port = htons(m_port);
 		}
+
+		UdpListener::UdpListener() : UdpListener("::1", 4)
+		{
+		}
 		
 		UdpListener::UdpListener(const std::string& ip, uint16_t port) : m_ip(ip), m_port(port)
 		{

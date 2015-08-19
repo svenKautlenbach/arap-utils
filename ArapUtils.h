@@ -160,6 +160,7 @@ namespace arap
 		{
 		public:
 			UdpListener(const std::string& ip, uint16_t port);
+			UdpListener();
 
 			~UdpListener();
 
