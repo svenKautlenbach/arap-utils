@@ -166,6 +166,7 @@ namespace arap
 
 			bool dataAvailable();
 			std::vector<uint8_t> getData();
+			// In order to get the sender, first the getData must be called!!!
 			std::string getSender();
 		private:
 			std::string m_ip;
