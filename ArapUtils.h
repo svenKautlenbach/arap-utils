@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ctime>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -98,13 +99,20 @@ namespace arap
 	class Tools
 	{
 	public:
-		 static uint32_t getTime24h(bool gmt = true);
-		 static uint32_t getTime24h(time_t unixTime);
-		 static uint32_t getTime24h(const std::string& clockFormat);
-		 static std::string get24hFormated(uint32_t time24h);
-		 static std::string getTimespanAscii(uint32_t uptime);
+		static uint32_t getTime24h(bool gmt = true);
+		static uint32_t getTime24h(time_t unixTime);
+		static uint32_t getTime24h(const std::string& clockFormat);
+		static std::string get24hFormated(uint32_t time24h);
+		static std::string getTimespanAscii(uint32_t uptime);
+		static std::string getTimeAsc()
+		{
+			auto timeT = std::time(nullptr);
+			return std::asctime(std::localtime(&timeT));
+		}
+			
+		static std::string getErrnoDescription();
 
-		 static int generateRandom(uint32_t maxValue = 0);
+		static int generateRandom(uint32_t maxValue = 0);
 	private:
 		Tools(){}
 		~Tools(){}
