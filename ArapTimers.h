@@ -42,6 +42,7 @@ namespace arap
 			restart();
 		}
 
+		// Start counting from the last timeout.
 		void reset() override
 		{
 			if (m_timeoutDuration > 0)
@@ -50,6 +51,7 @@ namespace arap
 			m_pauseContinuum = 0;
 		}
 
+		// Start counting from now.
 		void restart()
 		{
 			if (m_timeoutDuration > 0)

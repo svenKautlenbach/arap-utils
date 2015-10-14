@@ -485,7 +485,12 @@ namespace arap
 
 	int Tools::generateRandom(uint32_t maxValue)
 	{
-		srand(time(nullptr));
+		static bool initDone = false;
+
+		if (!initDone)
+			srand(time(nullptr));
+		
+		initDone = true;
 		auto random = rand();
 	
 		if (maxValue == 0)
