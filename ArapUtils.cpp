@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <cstring>
-#include <ctime>
 #include <exception>
 #include <functional>
 #include <iostream>
@@ -482,6 +481,14 @@ namespace arap
 
 		return converter.str();
 	}
+	
+	std::string Tools::getErrnoDescription()
+	{
+		std::ostringstream errorDescription;
+		errorDescription << "Errno (" << errno << ") - " << strerror(errno) << std::endl;
+
+		return errorDescription.str();
+	}
 
 	int Tools::generateRandom(uint32_t maxValue)
 	{
@@ -503,7 +510,7 @@ namespace arap
 	{
 		void Print::errnoDescription()
 		{
-			std::cerr << "Errno (" << errno << ") - " << strerror(errno) << std::endl;
+			std::cerr << Tools::getErrnoDescription();
 		}
 			
 		void Print::errnoDescription(const std::string& applicationMessage)
