@@ -324,11 +324,17 @@ namespace arap
 		std::vector<std::string> Utilities::getLines(std::ifstream& fileStream)
 		{
 			std::vector<std::string> lines;
-		
-			while (fileStream.eof() == false)
+
+			while (true)
 			{
 				std::string line;
 				std::getline(fileStream, line);
+				
+				if (fileStream.eof() && line.empty())
+				{
+					break;
+				}
+
 				lines.push_back(line);
 			}
 
