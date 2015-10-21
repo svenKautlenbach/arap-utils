@@ -45,6 +45,9 @@ namespace arap
 		// Start counting from the last timeout.
 		void reset() override
 		{
+			if (m_timeoutEpoch == 0)
+				return restart(); // Except this one, since timer was stopped.
+
 			if (m_timeoutDuration > 0)
 				m_timeoutEpoch += m_timeoutDuration;
 
@@ -60,7 +63,7 @@ namespace arap
 			m_pauseContinuum = 0;
 		}
 		
-		void pause() override { if (!expired()) m_pauseContinuum = std::time(nullptr); }
+		void pause() override { if (!expired()) m_pauseContinuum = elapsed();}
 		void stop() override { m_timeoutEpoch = m_pauseContinuum = 0; }
 		void run() override 
 		{
@@ -70,8 +73,8 @@ namespace arap
 				return;
 			}
 		
-			assert(m_timeoutEpoch > m_pauseContinuum);
-			auto remainedTime = m_timeoutEpoch - m_pauseContinuum;
+			assert(m_pauseContinuum < m_timeoutDuration);
+			auto remainedTime = m_timeoutDuration - m_pauseContinuum;
 			m_timeoutEpoch += remainedTime;
 			m_pauseContinuum = 0;
 		};
@@ -90,6 +93,12 @@ namespace arap
 		uint32_t elapsed() override
 		{
 			if (expired())
+				return m_timeoutDuration;
+
+			if (m_pauseContinuum > 0)
+				return m_pauseContinuum;
+
+			if (m_timeoutEpoch == 0)
 				return 0;
 
 			return std::time(nullptr) - (m_timeoutEpoch - m_timeoutDuration);
