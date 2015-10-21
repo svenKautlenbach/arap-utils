@@ -30,3 +30,5 @@
 # Vim caches
 *.swp
 *.swo
+
+test/cmake/
