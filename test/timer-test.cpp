@@ -1,12 +1,6 @@
 #include "gtest/gtest.h"
 
-#include "ArapUtils.h"
 #include "ArapTimers.h"
-
-TEST(StringOperations, Split)
-{
-	ASSERT_EQ(3, arap::strings::Utilities::split("Jou mees tere.", " ").size());
-}
 
 TEST(SimpleTimer, Expiration)
 {

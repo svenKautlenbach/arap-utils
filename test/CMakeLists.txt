@@ -10,7 +10,7 @@ include_directories (
 	"${PROJECT_SOURCE_DIR}/../"
 	)
 
-file (GLOB SOURCES "test-main.cpp" "timer-test.cpp" "../ArapUtils.cpp")
+file (GLOB SOURCES "test-main.cpp" "timer-test.cpp" "strings-test.cpp" "../ArapUtils.cpp")
 
 add_executable (arap-utils-test ${SOURCES})
 target_link_libraries (arap-utils-test ${PROJECT_SOURCE_DIR}/gtest/libgtest.a)
