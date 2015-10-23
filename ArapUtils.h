@@ -6,6 +6,7 @@
 #include <vector>
 
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 namespace arap
@@ -113,6 +114,8 @@ namespace arap
 		static std::string getErrnoDescription();
 
 		static int generateRandom(uint32_t maxValue = 0);
+		
+		static bool isFilePresent(const std::string& filePath) {struct stat buffer; return (stat(filePath.c_str(), &buffer) == 0);}
 	private:
 		Tools(){}
 		~Tools(){}

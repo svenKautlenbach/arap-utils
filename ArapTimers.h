@@ -120,6 +120,6 @@ namespace arap
 	private:
 		uint32_t m_timeoutDuration;
 		time_t m_timeoutEpoch;
-		time_t m_pauseContinuum;
+		uint32_t m_pauseContinuum;
 	};
 }
