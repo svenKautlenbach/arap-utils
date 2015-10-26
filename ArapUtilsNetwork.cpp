@@ -20,17 +20,13 @@ namespace arap
 
 			if (!inet_pton(AF_INET6, ip.c_str(), &(ip6Address.sin6_addr)))
 			{
-				std::cerr << "inet_pton() to address " << ip << " failed." << std::endl;
-
-				throw std::exception();
+				throw std::runtime_error(std::string("inet_pton() to address ") + ip + std::string(" failed"));
 			}
 
 			socketDescriptor = socket(AF_INET6, SOCK_STREAM, 0);
 			if (socketDescriptor < 0)
 			{
-				std::cerr << "socket() error for " << ip << "." << std::endl;
-
-				throw std::exception();
+				throw std::runtime_error(std::string("socket() error for ") + ip);
 			}
 
 			ip6Address.sin6_family = AF_INET6;
@@ -38,20 +34,16 @@ namespace arap
 
 			if (connect(socketDescriptor, reinterpret_cast<struct sockaddr*>(&ip6Address), sizeof(ip6Address)) < 0) 
 			{
-				std::cerr << "connect() for " << ip << " failed." << std::endl;
-
 				close(socketDescriptor);
-
-				throw std::exception();
+				
+				throw std::runtime_error(std::string("connect() for ") + ip + std::string(" failed."));
 			}
 
 			if (write(socketDescriptor, what.c_str(), what.size()) < 0)
 			{
-				std::cerr << "write() for " << ip << " failed." << std::endl;
-
 				close(socketDescriptor);
-
-				throw std::exception();
+				
+				throw std::runtime_error(std::string("write() for ") + ip + std::string(" failed."));
 			}
 
 			fd_set fdSet;
@@ -78,23 +70,22 @@ namespace arap
 						continue;
 					}
 
-					arap::diagnostics::Print::errnoDescription();
 
 					FD_CLR(socketDescriptor, &fdSet);
 					close(socketDescriptor);
 
-					throw std::runtime_error("select() error for the request - " + what + " - to: " + ip);
+					throw std::runtime_error(std::string("select() error for the request - ") + what + std::string(" - to: ") + ip +
+							std::string("\n") + Tools::getErrnoDescription());
 				}
 
 				auto receiveResult = recv(socketDescriptor, responseBuffer + responseLength, responseBufferSize - responseLength, 0);
 
 				if (receiveResult < 0)
 				{
-					std::cerr << "Error occured when recv()-ing network data." << std::endl;
-					arap::diagnostics::Print::errnoDescription();
-
 					FD_CLR(socketDescriptor, &fdSet);
 					close(socketDescriptor);
+					
+					throw std::runtime_error(std::string("Error occured when recv()-ing network data - ") + Tools::getErrnoDescription());
 				}
 
 				if (receiveResult == 0)
@@ -130,14 +121,13 @@ namespace arap
 
 			if (bytesSent < 0)
 			{
-				arap::diagnostics::Print::errnoDescription();
-				throw std::runtime_error("sendto() failed for address " + m_ip);
+				throw std::runtime_error(std::string("sendto() failed for address ") + m_ip + std::string("\n") + Tools::getErrnoDescription());
 			}
 
 			if (static_cast<size_t>(bytesSent) != packet.size())
 			{
-				std::cerr << "Not all bytes got sent to " << m_ip << " " << bytesSent << "/" << packet.size()
-					<< " sent." << std::endl;
+				throw std::runtime_error(std::string("Not all bytes got sent to ") + m_ip + std::string(" ") + std::to_string(bytesSent) 
+						+ std::string("/") + std::to_string(packet.size()) + std::string(" sent."));
 			}
 		}
 
@@ -150,10 +140,7 @@ namespace arap
 		{
 			if (inet_pton(AF_INET6, m_ip.c_str(), &(m_ip6SockAddr.sin6_addr)) != 1)
 			{
-				std::cerr << "inet_pton() to address " << m_ip << " failed." << std::endl;
-				arap::diagnostics::Print::errnoDescription();
-
-				throw std::exception();
+				throw std::runtime_error(std::string("inet_pton() to address ") + m_ip + std::string(" failed.\n") + Tools::getErrnoDescription());
 			}
 			
 			m_socketDescriptor = socket(AF_INET6, SOCK_DGRAM, 0);
@@ -197,10 +184,9 @@ namespace arap
 					return false;
 				}
 
-				arap::diagnostics::Print::errnoDescription();
 				FD_CLR(m_socketDescriptor, &fdSet);
 
-				throw std::runtime_error("select() error for UdpListener listening " + m_ip + ".");
+				throw std::runtime_error(std::string("select() error for UdpListener listening ") + m_ip + std::string("\n") + Tools::getErrnoDescription());
 			}
 
 			return true;
@@ -217,32 +203,18 @@ namespace arap
 					reinterpret_cast<struct sockaddr*>(&clientSockAddr), &clientSockAddrLength);
 
 			if (receivedBytes < 0)
-			{
-				std::cerr << "recvfrom() resulted in error." << std::endl;
-				arap::diagnostics::Print::errnoDescription();
-
-				return receivedData;
-			}
+				throw std::runtime_error(std::string("recvfrom() resulted in error.\n") + Tools::getErrnoDescription());
 
 			for (uint32_t i = 0; i < static_cast<uint32_t>(receivedBytes); (void)0)
-			{
 				receivedData.push_back(dataBuffer[i++]);
-			}
 
 			char ipStringBuffer[100];
 			auto ipString = inet_ntop(clientSockAddr.sin6_family, &(clientSockAddr.sin6_addr.s6_addr), ipStringBuffer, 100);
 			
 			if (ipString == NULL)
-			{
-				std::cerr << "Error converting last sender address." << std::endl;
-				arap::diagnostics::Print::errnoDescription();
-
-				m_senderIp = std::string();
-			}
+				throw std::runtime_error(std::string("Error converting last sender address.\n") + Tools::getErrnoDescription());
 			else
-			{
 				m_senderIp = std::string(ipStringBuffer);
-			}
 
 			return receivedData;
 		}
@@ -255,12 +227,7 @@ namespace arap
 		void UdpListener::bindSocket()
 		{
 			if (inet_pton(AF_INET6, m_ip.c_str(), &(m_ip6SockAddr.sin6_addr)) != 1)
-			{
-				std::cerr << "inet_pton() to address " << m_ip << " failed." << std::endl;
-				arap::diagnostics::Print::errnoDescription();
-
-				throw std::exception();
-			}
+				throw std::runtime_error(std::string("inet_pton() to address ") + m_ip + std::string(" failed.\n") + Tools::getErrnoDescription());
 
 			m_socketDescriptor = socket(AF_INET6, SOCK_DGRAM, 0);
 			
@@ -268,13 +235,7 @@ namespace arap
 			m_ip6SockAddr.sin6_port = htons(m_port);
 
 			if (bind(m_socketDescriptor, reinterpret_cast<struct sockaddr*>(&m_ip6SockAddr), sizeof(m_ip6SockAddr)) < 0)
-			{
-				std::cerr << "bind() failed for " << m_ip << "." << std::endl;
-				arap::diagnostics::Print::errnoDescription();
-
-				throw std::exception();
-			}
-			
+				throw std::runtime_error(std::string("bind() failed for ") + m_ip + std::string("\n") + Tools::getErrnoDescription());
 		}
 			
 		std::string Ipv6MacConvert::getIpv6(const std::string& prefix, const std::string& eui64)
