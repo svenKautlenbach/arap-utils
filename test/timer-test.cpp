@@ -61,3 +61,15 @@ TEST(SimpleTimer, ElapsedMeasuring)
 	sleep(1);
 	ASSERT_EQ(0, timerTest3.elapsed());
 }
+
+TEST(SimpleTimer, NoExpirationWhenDefaultCtor)
+{
+	arap::SimpleTimer timerTest;
+	ASSERT_FALSE(timerTest.expired());
+	sleep(1);
+	ASSERT_FALSE(timerTest.expired());
+
+	arap::SimpleTimer timerTest2;
+	timerTest2.stop();
+	ASSERT_FALSE(timerTest2.expired());
+}
