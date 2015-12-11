@@ -50,7 +50,7 @@ namespace arap
 			FD_ZERO(&fdSet);
 			FD_SET(socketDescriptor, &fdSet); 
 			struct timeval selectTimeout = {5, 0};
-			size_t responseBufferSize = 4096;
+			size_t responseBufferSize = 1048576;
 			size_t responseLength = 0;
 			uint8_t responseBuffer[responseBufferSize];
 			while (1)

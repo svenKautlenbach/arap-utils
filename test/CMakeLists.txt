@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.2.2)
 project (arap-utils-test)
 
-set (CMAKE_CXX_FLAGS "-Wall -Werror -std=gnu++11")
+set (CMAKE_CXX_FLAGS "-Wall -Werror -Wno-sign-compare -std=c++1y")
 set (CMAKE_EXE_LINKER_FLAGS "-pthread")
 
 include_directories (
