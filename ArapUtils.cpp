@@ -29,19 +29,11 @@ namespace arap
 
 			auto entries = strings::Utilities::getLines(pipeStream);
 			if (entries.size() < 1)
-			{
-				std::cout << "Process - " << processEntry << " - not found." << std::endl;
-				
-				throw std::exception();
-			}
+				throw std::runtime_error("Process - " + processEntry + " - not found.");
 			
 			auto convertedValue = strtoul(entries.at(0).c_str(), nullptr, 10);
 			if (convertedValue == 0 || convertedValue == ULONG_MAX)
-			{
-				diagnostics::Print::errnoDescription();
-
-				throw std::exception();
-			}
+				throw std::runtime_error("Cannot convert PID value to numerical one - " + Tools::getErrnoDescription());
 
 			return static_cast<pid_t>(convertedValue);
 		}
