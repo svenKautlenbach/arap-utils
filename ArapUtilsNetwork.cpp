@@ -58,9 +58,10 @@ namespace arap
 				auto selectResult = select(socketDescriptor + 1, &fdSet, nullptr, nullptr, &selectTimeout);
 				if (selectResult == 0)
 				{
-					std::cerr << "Timeout occured for the request - " << what << " - to: " << ip << std::endl;
-
-					break;
+					FD_CLR(socketDescriptor, &fdSet);
+					close(socketDescriptor);
+					
+					throw std::runtime_error("Timeout occured for the request - " + what + " - to: "+ ip);
 				}
 
 				if (selectResult == -1)
